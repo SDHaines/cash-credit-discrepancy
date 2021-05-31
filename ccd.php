@@ -7,8 +7,9 @@
  * credit card payments exceed 30% of the income for
  * a given date or date range. 
  * 
- * Called from the command line it requires at least
- * 1 argument a date in the form of yyyy-mm-dd
+ * Called from the command line it take 0, 1 or 2 arguments
+ * if given no arguments it calculates last week from sunday 
+ * to saturday. If given 1 argument, a date in the form of yyyy-mm-dd
  * ie. ./ccd.php 2021-05-02 will calculate the totals 
  * for the logical business day. 
  * 
@@ -21,11 +22,15 @@
 
 require_once '/usr/local/valCommon/Counterpoint.php';
 
-$startDT = counterpointBusinessDayStart ( $argv[1] );
-$endDT = isset( $argv[2] ) ? counterpointBusinessDayEnd( $argv[2] ) : counterpointBusinessDayEnd( $argv[1] );
-$cashAmt = 0;
-$creditAmt = 0;
-$totalAmt = 0;
+if( isset( $argv[1] ) ) {
+    $startDT = counterpointBusinessDayStart ( $argv[1] );
+    $endDT = isset( $argv[2] ) ? counterpointBusinessDayEnd( $argv[2] ) : counterpointBusinessDayEnd( $argv[1] );
+} else {
+    $lastSunday = new DateTime( 'last sunday -7 days' );
+    $lastSaturday = new DateTime( 'last saturday' );
+    $startDT = counterpointBusinessDayStart( $lastSunday->format('Y-m-d') );
+    $endDT = counterpointBusinessDayEnd( $lastSaturday->format('Y-m-d') );
+}
 
 print "Query Dates START: $startDT END: $endDT\n";
 
